@@ -10,15 +10,11 @@ class Header extends Component {
       backgroundColor: hexColorWay, 
     }
     return (
-      <div>
-        <div className="Header" style={backgroundColorCSS}>
-            <h1 className="Header-headline">Who has the belt?</h1>
+      <div className="Header" style={backgroundColorCSS}>
+          <h4 className="Header-preheadline">- who has the belt? -</h4>
+          <h1 className="Header-headline">
             { getFullName(this.props.theBelt) }
-        </div>
-        <div className="StandInHeader">
-          <h2>test thing is going on here.</h2>
-          { getFullName(this.props.theBelt) }
-        </div>
+          </h1>
       </div>
     );
   }
