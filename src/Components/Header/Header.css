@@ -1,5 +1,4 @@
 .Header {
-  background-color: #282c34;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -7,13 +6,13 @@
   justify-content: center;
   min-height: 25vh;
 }
-.Header-logo {  
-  height: 12.5vh;
-}
 .Header-headline {
   color: white;
   font-size: calc(10px + 3vmin);
   margin-bottom: 0;
   font-weight: 800;
   text-transform: uppercase;
+}
+.StandInHeader {
+  margin-top: 10rem;
 }

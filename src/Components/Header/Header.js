@@ -1,16 +1,24 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import { getMainColor } from 'nba-color';
+import { getMainColor, getFullName } from 'nba-color';
 import './Header.css';
 
 class Header extends Component {
   render() {
-    console.log(this.props.theBelt)
+    const colorWay = getMainColor(this.props.theBelt);
+    const hexColorWay = colorWay.hex;
+    const backgroundColorCSS = {
+      backgroundColor: hexColorWay, 
+    }
     return (
-      <div className="Header">
-          <img src={logo} className="Header-logo" alt="logo" />
-          <h1 className="Header-headline">Who has the belt?</h1>
-          { this.props.theBelt }
+      <div>
+        <div className="Header" style={backgroundColorCSS}>
+            <h1 className="Header-headline">Who has the belt?</h1>
+            { getFullName(this.props.theBelt) }
+        </div>
+        <div className="StandInHeader">
+          <h2>test thing is going on here.</h2>
+          { getFullName(this.props.theBelt) }
+        </div>
       </div>
     );
   }
