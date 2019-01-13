@@ -6,6 +6,8 @@ class Next extends Component {
     return (
       <div className="Next">
         {this.props.theBelt}
+        <h2>Their title match is against  on . </h2>
+        
       </div>
     );
   }
