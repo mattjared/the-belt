@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Header from '../Header/Header';
 import Next from '../Next/Next';
+import History from '../History/History'
 import axios from 'axios';
 import moment from 'moment';
 
@@ -18,23 +19,24 @@ class App extends Component {
     .then(res => {
       const games = res.data;
       this.setState({ games })
-      this.setupGames();
-      // console.log(post[1].badges.due);   
     })
   };
-  setupGames() {
-    this.state.games.map((games) => {
-      if (games.badges.due !== null) {
-        const gameDate = new Date(games.badges.due);
-        return console.log(moment(gameDate).format('LL'));
-      }
-    });
-  }
   render() {
     return (
       <div className="App">
         <Header theBelt={this.state.theBelt} />
         <Next theBelt={this.state.theBelt} />
+        {this.state.games.map((games, i) => {
+          const gameDate = new Date(games.badges.due);
+          const teams = games.labels;
+          return (
+            <History
+              key={i}
+              gameDate={moment(gameDate).format('LL')}
+              gameTeams={teams}
+            />
+          ) 
+        })}
       </div>
     );
   }
