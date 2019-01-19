@@ -61,7 +61,7 @@ class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { beltHolder } = this.state;
-    // make this dynamic
+    // TODO: make this dynamic
     const startDate = '2018-10-15';
     const endDate = '2019-7-1'
     if (!prevState.beltHolder && beltHolder) {
@@ -69,7 +69,9 @@ class App extends Component {
     }
   }
   componentDidMount() {
-    axios.get(`https://allsportsapi.com/api/basketball/?met=Fixtures&APIkey=${apiKey}&leagueId=${leagueId}&from=2018-6-1&to=2018-7-1`).then(res => {
+    // getting last seasons champion
+    // TODO: make this dynamic
+    axios.get(`${baseUrl}${apiKey}&leagueId=${leagueId}&from=2018-6-1&to=2018-7-1`).then(res => {
       const lastGame = res.data.result[0];
       const determineBeltHolder = () => {
         const [homePts, awayPts] = lastGame.event_final_result.split(' - ');
