@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "http://thebelt.pro",
   "dependencies": {
+    "axios": "^0.18.0",
     "gh-pages": "^2.0.1",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
@@ -28,6 +29,7 @@
   ],
   "devDependencies": {
     "axios": "^0.18.0",
+    "firebase": "^5.8.0",
     "moment": "^2.23.0",
     "nba-color": "^1.3.7"
   }
