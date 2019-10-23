@@ -1,95 +1,164 @@
-import React, { Component } from 'react';
-import Header from '../Header/Header';
-import Next from '../Next/Next';
-import History from '../History/History'
-import axios from 'axios';
-import moment from 'moment';
+import React, { Component } from "react";
+import Header from "../Header/Header";
+import Next from "../Next/Next";
+import History from "../History/History";
+import axios from "axios";
+import moment from "moment";
 
-const baseUrl = 'https://allsportsapi.com/api/basketball/?met=Fixtures&APIkey=';
-const apiKey = '5fc2fd27017d3cba6249724c1ee851bd7badfe04bc77a6ea6abeff03ded64134';
-const leagueId = '787';
+const getPrevChampion = lastGame => {
+  const homeWon = lastGame.home_team_score > lastGame.visitor_team_score;
+  return homeWon
+    ? { ...lastGame.home_team, date: lastGame.date }
+    : { ...lastGame.visitor_team, date: lastGame.date };
+};
+
+const buildBeltPath = (prevChamp, allGames) => {
+  const champsFirstGameIndex = allGames.findIndex(
+    game =>
+      game.visitor_team.full_name === prevChamp.full_name ||
+      game.home_team.full_name === prevChamp.full_name
+  );
+  const beltWinners = allGames.reduce((acc, curr, i) => {
+    const first = allGames[champsFirstGameIndex];
+    const champWasHome = first.home_team.full_name === prevChamp.full_name;
+    if (i === 0) {
+      const champWon = champWasHome
+        ? first.home_team_score > first.visitor_team_score
+        : first.visitor_team_score > first.home_team_score;
+      acc[0] = champWon
+        ? { ...prevChamp, date: first.date, gameIndex: champsFirstGameIndex }
+        : champWasHome
+        ? {
+            ...first.visitor_team,
+            date: first.date,
+            gameIndex: champsFirstGameIndex
+          }
+        : {
+            ...first.home_team,
+            date: first.date,
+            gameIndex: champsFirstGameIndex
+          };
+      return acc;
+    } else {
+      if (acc[i - 1]) {
+        const nextGames = allGames.slice(
+          acc[i - 1].gameIndex + 1,
+          allGames.length
+        );
+        const nextChampGame = nextGames.find(game => {
+          return (
+            game.home_team.full_name === acc[i - 1].full_name ||
+            game.visitor_team.full_name === acc[i - 1].full_name
+          );
+        });
+        if (nextChampGame) {
+          const nextGameIndex = allGames.findIndex(
+            game => game.id === nextChampGame.id
+          );
+          const winner = getPrevChampion(nextChampGame);
+          acc[i] = { ...winner, gameIndex: nextGameIndex };
+        }
+        return acc;
+      }
+      return acc;
+    }
+  }, []);
+  return beltWinners;
+};
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      beltHolder: undefined,
-      theBelt: 'MEM',
-      theChallenger: 'GSW',
-      games: []
+    this.state = {
+      theBelt: "MEM",
+      theChallenger: "GSW",
+      beltPath: [],
+      champion: JSON.parse(localStorage.getItem("champion") || {}) || {},
+      currentChamp: "",
+      games: JSON.parse(localStorage.getItem("games") || []) || []
     };
   }
-
-  getNextBeltHolder = () => {
-    // this mess needs to move to firebase but putting it here for now
-    // because idk how to work those firebase functions yet
-    const { beltHolder, date: evtDate } = this.state;
-    const currentMonth = Number(evtDate.split('-')[1]);
-    const currentDay = Number(evtDate.split('-')[2]);
-    const currentYear = Number(evtDate.split('-')[0]);
-    const currDate = moment([currentYear, currentMonth - 1, currentDay]).add(1, 'day').format().split('T')[0];
-    const nextDate = moment([currentYear, currentMonth - 1, currentDay]).add(1, 'month').format().split('T')[0];
-
-    axios.get(`${baseUrl}${apiKey}&leagueId=${leagueId}&from=${currDate}&to=${nextDate}`).then(res => {
-      if (res.data && res.data.result && !(res.data.result.length === 1 && res.data.result[0].event_date === evtDate)) {
-        // get all the games the current beltHolder has played during the month
-        const gamesPlayed = res.data.result.reverse().filter(game => game.event_home_team === beltHolder || game.event_away_team === beltHolder) || []
-
-        // Find the game they lost
-        const beltHolderUntil = gamesPlayed.find(game => {
-          const isHome = game.event_home_team === beltHolder;
-          const [homePts, awayPts] = game.event_final_result.split(' - ');
-          return isHome ? Number(homePts) < Number(awayPts) : Number(homePts) > Number(awayPts);
-        });
-
-        // Get the winner of that game
-        const newBeltHolder = beltHolderUntil ? (beltHolderUntil.event_home_team === beltHolder ? beltHolderUntil.event_away_team : beltHolderUntil.event_home_team) : beltHolder;
-        this.setState({ beltHolder: newBeltHolder, date: beltHolderUntil ? beltHolderUntil.event_date : nextDate }, () => {
-          // keep getting the next beltHolder till we're current
-          if (this.state.date !== nextDate) {
-            this.getNextBeltHolder()
-          }
-        });
-      } else {
-        // no games this month for the current belt holder
-        // get next month
-        this.setState({ date: nextDate });
-        this.getNextBeltHolder();
-      }
-    })
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { beltHolder } = this.state;
-    // TODO: make this dynamic
-    const startDate = '2018-10-15';
-    const endDate = '2019-7-1'
-    if (!prevState.beltHolder && beltHolder) {
-      this.getNextBeltHolder();
-    }
-  }
   componentDidMount() {
-    // getting last seasons champion
-    // TODO: make this dynamic
-    axios.get(`${baseUrl}${apiKey}&leagueId=${leagueId}&from=2018-6-1&to=2018-7-1`).then(res => {
-      const lastGame = res.data.result[0];
-      const determineBeltHolder = () => {
-        const [homePts, awayPts] = lastGame.event_final_result.split(' - ');
-        const homeWon = Number(homePts) > Number(awayPts);
-        return homeWon ? lastGame.event_home_team : lastGame.event_away_team;
-      }
-      this.setState({ beltHolder: determineBeltHolder(), date: '2018-10-16' });
-    });
-    axios.get('https://api.trello.com/1/lists/5c3a5f3066596b37b3f656b6/cards')
-    .then(res => {
-      const games = res.data;
-      this.setState({ games })
-    })
-  };
+    const season = 2017;
+    axios
+      .get(
+        `https://www.balldontlie.io/api/v1/games?seasons[]=${season}&start_date=${season +
+          1}-06-01`
+      )
+      .then(res => {
+        const games = res.data.data;
+        const lastGame = games[games.length - 1];
+        const visitorWon =
+          lastGame.visitor_team_score > lastGame.home_team_score;
+        const champion = visitorWon
+          ? lastGame.visitor_team
+          : lastGame.home_team;
+
+        const allGames = [];
+        const getPage = async (page = 1) => {
+          await axios
+            .get(
+              `https://www.balldontlie.io/api/v1/games?seasons[]=${season}&per_page=100&page=${page}`
+            )
+            .then(d => {
+              allGames.push(...d.data.data);
+              return allGames;
+            });
+        };
+        const getNumberOfPages = async () => {
+          return await axios
+            .get(
+              `https://www.balldontlie.io/api/v1/games?seasons[]=${season}&per_page=100&page=1`
+            )
+            .then(d => {
+              return d.data.meta.total_pages;
+            });
+        };
+        const getAllPages = async () => {
+          const numberOfPages = await getNumberOfPages();
+          let currentPage = 1;
+          const pageNumbers = [];
+          while (currentPage <= numberOfPages) {
+            pageNumbers.push(currentPage);
+            currentPage++;
+          }
+          await Promise.all(pageNumbers.map(pg => getPage(pg)));
+          allGames.sort(
+            (a, b) =>
+              moment(a.date).format("YYYYMMDD") -
+              moment(b.date).format("YYYYMMDD")
+          );
+          return allGames;
+        };
+        if (
+          !localStorage.getItem("games") ||
+          !localStorage.getItem("champion")
+        ) {
+          getAllPages().then(d => {
+            const prevChamp = getPrevChampion(d[d.length - 1]);
+            buildBeltPath(prevChamp, allGames);
+            this.setState({ champion: prevChamp, games: d }, () => {
+              localStorage.setItem("games", JSON.stringify(d));
+              localStorage.setItem("champion", JSON.stringify(prevChamp));
+            });
+          });
+        } else {
+          const beltPath = buildBeltPath(
+            JSON.parse(localStorage.getItem("champion")),
+            JSON.parse(localStorage.getItem("games"))
+          );
+          console.log(beltPath);
+          const currentChamp = beltPath[beltPath.length - 1].abbreviation || "";
+          this.setState({ beltPath, currentChamp });
+        }
+        // getPage();
+      });
+  }
+
   render() {
     return (
       <div className="App">
-        <Header theBelt={this.state.theBelt} />
+        {/* <Header theBelt={this.state.theBelt} />
         <Next theBelt={this.state.theBelt} />
         {this.state.games.map((games, i) => {
           const gameDate = new Date(games.badges.due);
@@ -97,11 +166,18 @@ class App extends Component {
           return (
             <History
               key={i}
-              gameDate={moment(gameDate).format('LL')}
+              gameDate={moment(gameDate).format("LL")}
               gameTeams={teams}
             />
-          ) 
-        })}
+          );
+        })} */}
+        <Header theBelt={this.state.currentChamp} />
+        {this.state.beltPath.map(winner => (
+          <div>
+            <p>{winner.full_name}</p>
+            <p>{moment(winner.date).format("dddd, MMMM Do YYYY, h:mm:ss a")}</p>
+          </div>
+        ))}
       </div>
     );
   }
