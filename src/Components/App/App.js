@@ -27,6 +27,8 @@ const buildBeltPath = (prevChamp, allGames) => {
     } else {
       count++;
       if (i === 0) {
+        // first time around, find the previous season champ's
+        // first game of this season
         const champWon = champWasHome
           ? first.home_team_score > first.visitor_team_score
           : first.visitor_team_score > first.home_team_score;
