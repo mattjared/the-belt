@@ -19,7 +19,6 @@ const buildBeltPath = (prevChamp, allGames) => {
       game.home_team.full_name === prevChamp.full_name
   );
   let count = 0;
-  console.log("build!!!", prevChamp, allGames, champsFirstGameIndex);
   const beltWinners = allGames.reduce((acc, curr, i) => {
     const first = allGames[champsFirstGameIndex];
     const champWasHome = first.home_team.full_name === prevChamp.full_name;
@@ -46,7 +45,6 @@ const buildBeltPath = (prevChamp, allGames) => {
             };
         return acc;
       } else {
-        console.log("in other else", curr);
         if (acc[i - 1]) {
           const nextGames = allGames.slice(
             acc[i - 1].gameIndex + 1,
@@ -77,6 +75,8 @@ const buildBeltPath = (prevChamp, allGames) => {
       moment(winner.date).format("YYYYMMDD") >
       moment(new Date()).format("YYYYMMDD")
   );
+  // I'm not how future games are even getting to this point
+  // but moving on right now...
   const validWinners = beltWinners.slice(0, invalid - 1);
   return validWinners;
 };
