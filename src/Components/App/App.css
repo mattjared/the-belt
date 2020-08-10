@@ -27,9 +27,3 @@
     transform: rotate(360deg);
   }
 }
-
-.separator {
-  background-color: brown;
-  height: 10px;
-  width: 3px;
-}
