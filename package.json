@@ -4,11 +4,17 @@
   "private": true,
   "homepage": "http://thebelt.pro",
   "dependencies": {
+    "@types/jest": "^26.0.14",
+    "@types/node": "^14.11.2",
+    "@types/react": "^16.9.49",
+    "@types/react-dom": "^16.9.8",
     "gh-pages": "^3.1.0",
     "moment": "^2.27.0",
+    "nba-color": "^1.4.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "^3.4.1"
+    "react-scripts": "^3.4.1",
+    "typescript": "^4.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -29,7 +35,6 @@
   ],
   "devDependencies": {
     "axios": "^0.19.2",
-    "moment": "^2.27.0",
-    "nba-color": "^1.4.1"
+    "moment": "^2.27.0"
   }
 }

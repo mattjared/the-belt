@@ -1,26 +1,40 @@
 import moment from "moment";
 
-export const getPrevChampion = (lastGame) => {
+interface Team {
+  full_name: string;
+}
+
+export interface Game {
+  home_team_score: number;
+  visitor_team_score: number;
+  date: any;
+  visitor_team: Team;
+  home_team: Team;
+  status: string;
+  id: string;
+}
+
+export const getPrevChampion = (lastGame: Game) => {
   const homeWon = lastGame.home_team_score > lastGame.visitor_team_score;
   return homeWon
     ? { ...lastGame.home_team, date: lastGame.date }
     : { ...lastGame.visitor_team, date: lastGame.date };
 };
 
-export const getPrevLoser = (lastGame) => {
+export const getPrevLoser = (lastGame: Game) => {
   const homeWon = lastGame.home_team_score > lastGame.visitor_team_score;
   return homeWon
     ? { ...lastGame.visitor_team, date: lastGame.date }
     : { ...lastGame.home_team, date: lastGame.date };
 };
 
-export const buildBeltPath = (prevChamp, allGames) => {
+export const buildBeltPath = (prevChamp: Team, allGames: Game[]) => {
   const champsFirstGameIndex = allGames.findIndex(
     (game) =>
       game.visitor_team.full_name === prevChamp.full_name ||
       game.home_team.full_name === prevChamp.full_name
   );
-  const beltWinners = allGames.reduce((acc, curr, i) => {
+  const beltWinners = allGames.reduce((acc: any[], curr: Game, i: number): any[] => {
     const first = allGames[champsFirstGameIndex];
     if (curr.status !== "Final") {
       return acc;
