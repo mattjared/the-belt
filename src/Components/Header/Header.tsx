@@ -4,7 +4,7 @@ import "./Header.css";
 
 const Header = ({ theBelt }: { theBelt: string }): JSX.Element => {
   const colorWay = theBelt ? getMainColor(theBelt) : { hex: ''};
-    const hexColorWay = colorWay.hex;
+    const hexColorWay = (colorWay || {}).hex;
     const backgroundColorCSS = {
       backgroundColor: hexColorWay
     };

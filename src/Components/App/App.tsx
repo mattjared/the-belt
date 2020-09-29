@@ -16,6 +16,10 @@ export type PageResponse = {
     }
 }
 
+interface AllGames {
+    games: Game[]
+}
+
 const getPreviousChamp = async (season: number) => {
     const storedChamp = sessionStorage.getItem('previousSeasonChamp');
     const parsedChamp = storedChamp ? JSON.parse(sessionStorage.getItem('previousSeasonChamp') || '') : null;
@@ -25,13 +29,13 @@ const getPreviousChamp = async (season: number) => {
     const previousPostSeasonGames: Game[] = await (await axios.get(`${bbApi}${season - 1}&postseason=true&per_page=100`)).data.data;
     const previousChampGame = previousPostSeasonGames[previousPostSeasonGames.length - 1]
     const previousChamp = getPrevChampion(previousChampGame)
-    sessionStorage.setItem('previousSeasonChamp', JSON.stringify(previousChamp));
+    sessionStorage.setItem('previousSeasonChamp', JSON.stringify({...previousChamp, updated: new Date(),}));
     return previousChamp;
 }
 
 const gamesList: Game[] = [];
 
-const getAllGames = async (season: number, page: number = 1): Promise<Game[] | undefined> => {
+const getAllGames = async (season: number, page: number = 1): Promise<AllGames | undefined> => {
     if (sessionStorage.getItem('gameData')) {
         return JSON.parse(sessionStorage.getItem('gameData') || '');
     }
@@ -39,7 +43,7 @@ const getAllGames = async (season: number, page: number = 1): Promise<Game[] | u
         const pageData: AxiosResponse<PageResponse> = await axios.get(`${bbApi}${season}&per_page=100&page=${page}`);
         const newGames = pageData?.data?.data;
         // @ts-ignore
-        gamesList.push([...newGames])
+        gamesList.push(...newGames)
         if (pageData.data.meta.next_page) {
             const nextPageData = await getAllGames(season, pageData.data.meta.next_page)
         }
@@ -53,7 +57,7 @@ const getAllGames = async (season: number, page: number = 1): Promise<Game[] | u
             updated: new Date(),
         }
         sessionStorage.setItem('gameData', JSON.stringify(gameData));
-        return sortedGames;
+        return gameData;
     } catch (e) {
         console.error('Whoops!', e)
         return;
@@ -62,23 +66,28 @@ const getAllGames = async (season: number, page: number = 1): Promise<Game[] | u
 
 const App = () => {
     const season = 2019;
+    const [beltPath, setBeltPath] = useState<Game[]>([]);
+    const [champName, setChamp] = useState('')
 
     useEffect(() => {
         const fetchData = async () => {
             const previousChamp = await getPreviousChamp(season);
-            const allGames: Game[] | undefined = await getAllGames(season);
+            const allGames: AllGames | undefined = await getAllGames(season);
             if (!allGames) {
                 console.log('stop!')
                 return;
             }
+            const path = buildBeltPath(previousChamp, allGames.games);
+            setChamp(path[path.length - 1].abbreviation);
+            setBeltPath(path);
         }
         fetchData()
     }, []);
 
     return (
         <div className="App">
-            {/* <Header theBelt={this.state.currentChamp} /> */}
-            {/* {this.state.beltPath.reverse().map((game) => (
+            <Header theBelt={champName} />
+            {beltPath.reverse().map((game) => (
             <div>
                 <History
                 gameDate={moment(game.date)
@@ -87,7 +96,7 @@ const App = () => {
                 game={game}
                 />
             </div>
-            ))} */}
+            ))}
         </div>
     )
 }

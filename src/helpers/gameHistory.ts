@@ -1,15 +1,18 @@
 import moment from "moment";
 
-interface Team {
+export interface Team {
   full_name: string;
+  loser: Team;
 }
 
 export interface Game {
+  full_name: string;
   home_team_score: number;
   visitor_team_score: number;
   date: any;
   visitor_team: Team;
   home_team: Team;
+  loser: Team;
   status: string;
   id: string;
 }
@@ -31,9 +34,10 @@ export const getPrevLoser = (lastGame: Game) => {
 export const buildBeltPath = (prevChamp: Team, allGames: Game[]) => {
   const champsFirstGameIndex = allGames.findIndex(
     (game) =>
-      game.visitor_team.full_name === prevChamp.full_name ||
-      game.home_team.full_name === prevChamp.full_name
+      (game.visitor_team || {}).full_name === prevChamp.full_name ||
+      (game.home_team || {}).full_name === prevChamp.full_name
   );
+  console.log('champsFirstGameIndex', allGames, champsFirstGameIndex)
   const beltWinners = allGames.reduce((acc: any[], curr: Game, i: number): any[] => {
     const first = allGames[champsFirstGameIndex];
     if (curr.status !== "Final") {
@@ -89,3 +93,4 @@ export const buildBeltPath = (prevChamp: Team, allGames: Game[]) => {
   const validWinners = beltWinners.slice(0, invalid - 1);
   return validWinners;
 };
+``
