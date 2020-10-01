@@ -37,7 +37,6 @@ export const buildBeltPath = (prevChamp: Team, allGames: Game[]) => {
       (game.visitor_team || {}).full_name === prevChamp.full_name ||
       (game.home_team || {}).full_name === prevChamp.full_name
   );
-  console.log('champsFirstGameIndex', allGames, champsFirstGameIndex)
   const beltWinners = allGames.reduce((acc: any[], curr: Game, i: number): any[] => {
     const first = allGames[champsFirstGameIndex];
     if (curr.status !== "Final") {
@@ -93,4 +92,11 @@ export const buildBeltPath = (prevChamp: Team, allGames: Game[]) => {
   const validWinners = beltWinners.slice(0, invalid - 1);
   return validWinners;
 };
-``
+
+export const moreThanAnHourAgo = (updated: string) => {
+  const updatedDate = new Date(updated);
+    const now = new Date();
+    const oneHour = 60 * 60 * 1000;
+    // @ts-ignore
+    return now - updatedDate > oneHour;
+}

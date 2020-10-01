@@ -4,7 +4,7 @@ import Next from "../Next/Next";
 import History from "../History/History";
 import axios, { AxiosResponse } from "axios";
 import moment from "moment";
-import { Game, getPrevChampion, buildBeltPath } from "../../helpers/gameHistory";
+import { Game, getPrevChampion, buildBeltPath, moreThanAnHourAgo } from "../../helpers/gameHistory";
 import "./App.css";
 
 const bbApi = `https://www.balldontlie.io/api/v1/games?seasons[]=`;
@@ -23,7 +23,7 @@ interface AllGames {
 const getPreviousChamp = async (season: number) => {
     const storedChamp = sessionStorage.getItem('previousSeasonChamp');
     const parsedChamp = storedChamp ? JSON.parse(sessionStorage.getItem('previousSeasonChamp') || '') : null;
-    if (parsedChamp) {
+    if (parsedChamp && !moreThanAnHourAgo(parsedChamp.updated)) {
         return parsedChamp;
     }
     const previousPostSeasonGames: Game[] = await (await axios.get(`${bbApi}${season - 1}&postseason=true&per_page=100`)).data.data;
@@ -36,8 +36,9 @@ const getPreviousChamp = async (season: number) => {
 const gamesList: Game[] = [];
 
 const getAllGames = async (season: number, page: number = 1): Promise<AllGames | undefined> => {
-    if (sessionStorage.getItem('gameData')) {
-        return JSON.parse(sessionStorage.getItem('gameData') || '');
+    const storedGameData = sessionStorage.getItem('gameData');
+    if (storedGameData && !moreThanAnHourAgo(JSON.parse(storedGameData || '').updated)) {
+        return JSON.parse(storedGameData || '');
     }
     try {
         const pageData: AxiosResponse<PageResponse> = await axios.get(`${bbApi}${season}&per_page=100&page=${page}`);
