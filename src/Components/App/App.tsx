@@ -61,6 +61,7 @@ const getAllGames = async (season: number, page: number = 1): Promise<AllGames |
 }
 
 const App = () => {
+    // TODO: make this dynamic somehow so we can go back and look at previous seasons
     const season = 2019;
     const [beltPath, setBeltPath] = useState<Game[]>([]);
     const [champName, setChamp] = useState('')
