@@ -9,7 +9,6 @@
     "@types/react": "^16.9.49",
     "@types/react-dom": "^16.9.8",
     "gh-pages": "^3.1.0",
-    "moment": "^2.27.0",
     "nba-color": "^1.4.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -34,7 +33,6 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "axios": "^0.19.2",
-    "moment": "^2.27.0"
+    "axios": "^0.19.2"
   }
 }

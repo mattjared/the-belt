@@ -1,9 +1,7 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
-import Next from "../Next/Next";
 import History from "../History/History";
 import axios, { AxiosResponse } from "axios";
-import moment from "moment";
 import { Game, getPrevChampion, buildBeltPath, moreThanAnHourAgo } from "../../helpers/gameHistory";
 import "./App.css";
 
@@ -45,9 +43,6 @@ const getAllGames = async (season: number, page: number = 1): Promise<AllGames |
         const newGames = pageData?.data?.data;
         // @ts-ignore
         gamesList.push(...newGames)
-        if (pageData.data.meta.next_page) {
-            const nextPageData = await getAllGames(season, pageData.data.meta.next_page)
-        }
         const sortedGames = gamesList.sort(
             (a, b) =>
               Number(new Date(a.date)) -
@@ -79,7 +74,7 @@ const App = () => {
                 return;
             }
             const path = buildBeltPath(previousChamp, allGames.games);
-            setChamp(path[path.length - 1].abbreviation);
+            setChamp((path[path.length - 1] || {}).abbreviation);
             setBeltPath(path);
         }
         fetchData()
@@ -89,11 +84,9 @@ const App = () => {
         <div className="App">
             <Header theBelt={champName} />
             {beltPath.reverse().map((game) => (
-            <div>
+            <div key={`${game.gameIndex}`}>
                 <History
-                gameDate={moment(game.date)
-                    .add(1, "days")
-                    .format("LL")}
+                gameDate={game.date}
                 game={game}
                 />
             </div>

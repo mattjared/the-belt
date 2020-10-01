@@ -1,5 +1,3 @@
-import moment from "moment";
-
 export interface Team {
   full_name: string;
   loser: Team;
@@ -8,6 +6,7 @@ export interface Team {
 export interface Game {
   full_name: string;
   home_team_score: number;
+  gameIndex: number;
   visitor_team_score: number;
   date: any;
   visitor_team: Team;
@@ -83,14 +82,19 @@ export const buildBeltPath = (prevChamp: Team, allGames: Game[]) => {
     }
   }, []);
   const invalid = beltWinners.findIndex(
-    (winner) =>
-      Number(moment(winner.date).format("YYYYMMDD")) >
-      Number(moment(new Date()).format("YYYYMMDD")) + 1
+    (winner) => {
+      return new Date(winner.date) > new Date()
+    }
   );
   // I'm not how future games are even getting to this point
   // but moving on right now...
   const validWinners = beltWinners.slice(0, invalid - 1);
-  return validWinners;
+
+  // Remove instances where team held onto belt for multiple games
+  const filterOutDupes = validWinners.filter((winner, i) => {
+    return (validWinners[i - 1] || {}).full_name !== winner.full_name
+  });
+  return filterOutDupes;
 };
 
 export const moreThanAnHourAgo = (updated: string) => {
