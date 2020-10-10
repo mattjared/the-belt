@@ -43,6 +43,9 @@ const getAllGames = async (season: number, page: number = 1): Promise<AllGames |
         const newGames = pageData?.data?.data;
         // @ts-ignore
         gamesList.push(...newGames)
+        if (pageData.data.meta.next_page) {	
+            const nextPageData = await getAllGames(season, pageData.data.meta.next_page)	
+        }
         const sortedGames = gamesList.sort(
             (a, b) =>
               Number(new Date(a.date)) -
@@ -71,10 +74,10 @@ const App = () => {
             const previousChamp = await getPreviousChamp(season);
             const allGames: AllGames | undefined = await getAllGames(season);
             if (!allGames) {
-                console.log('stop!')
                 return;
             }
             const path = buildBeltPath(previousChamp, allGames.games);
+            console.log('path', path)
             setChamp((path[path.length - 1] || {}).abbreviation);
             setBeltPath(path);
         }
@@ -83,9 +86,9 @@ const App = () => {
 
     return (
         <div className="App">
-            <Header theBelt={champName} />
+            <Header loading={!beltPath.length} theBelt={champName} />
             {beltPath.reverse().map((game) => (
-            <div key={`${game.gameIndex}`}>
+            <div className="History-container" key={`${game.gameIndex}`}>
                 <History
                 gameDate={game.date}
                 game={game}

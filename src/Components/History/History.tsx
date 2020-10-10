@@ -8,8 +8,9 @@ const History = ({ gameDate, game }: { gameDate: Date, game: Team}) => {
   const day = d.getDate();
   const year = d.getFullYear();
   const formattedDate = `${month + 1}/${day + 1}/${year}`;
+
   return (
-    <div className="History">
+    <div className={`History ${game.changed ? 'with-change' : ''}`} style={game.changed ? { border: `3px solid #000`} : {}}>
       <p>{formattedDate}</p>
       <p>
         {(game || {}).full_name} beat{" "}
