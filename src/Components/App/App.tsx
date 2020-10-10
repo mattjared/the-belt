@@ -68,6 +68,7 @@ const App = () => {
     const season = 2019;
     const [beltPath, setBeltPath] = useState<Game[]>([]);
     const [champName, setChamp] = useState('')
+    const [viewMode, setViewMode] = useState('all');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -86,14 +87,32 @@ const App = () => {
     return (
         <div className="App">
             <Header loading={!beltPath.length} theBelt={champName} />
-            {beltPath.reverse().map((game) => (
-            <div className="History-container" key={`${game.gameIndex}`}>
-                <History
-                gameDate={game.date}
-                game={game}
-                />
+            <div className="History-container">
+                {!!beltPath.length && <div className="View-buttons">
+                    <button onClick={() => setViewMode('changes')}>Belt holder changes</button>
+                    <button onClick={() => setViewMode('all')}>All belt holder games</button>
+                </div>}
+                {[...beltPath].reverse().map((game) => {
+                    if (viewMode === 'all') {
+                        return (
+                            <div key={`${game.gameIndex}`}>
+                                <History
+                                gameDate={game.date}
+                                game={game}
+                                />
+                            </div>
+                            )
+                    }
+                    return game.changed ? (
+                        <div key={`${game.gameIndex}`}>
+                            <History
+                            gameDate={game.date}
+                            game={game}
+                            />
+                        </div>
+                        ) : null
+                })}
             </div>
-            ))}
         </div>
     )
 }

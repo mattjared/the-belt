@@ -7,9 +7,12 @@
 }
 .Header-preheadline {
   font-size: calc(10px + 1vmin);
-    text-shadow: 1px 1px 1px black;
+  text-shadow: 1px 1px 1px black;
   font-weight: 400;
   margin: 0 0 1rem 0;
+}
+.Header-preheadline.loading {
+  color: #000;
 }
 .Header-headline {
   font-size: calc(10px + 8vmin);
