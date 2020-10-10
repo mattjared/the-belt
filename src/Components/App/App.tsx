@@ -77,7 +77,6 @@ const App = () => {
                 return;
             }
             const path = buildBeltPath(previousChamp, allGames.games);
-            console.log('path', path)
             setChamp((path[path.length - 1] || {}).abbreviation);
             setBeltPath(path);
         }

@@ -3,7 +3,6 @@ import { getMainColor, getFullName } from "nba-color";
 import "./Header.css";
 
 const Header = ({ loading, theBelt }: { loading: boolean; theBelt: string; }): JSX.Element => {
-  console.log('get color!', theBelt)
   const colorWay = theBelt ? getMainColor(theBelt) : { hex: ''};
     const hexColorWay = (colorWay || {}).hex;
     const backgroundColorCSS = {
