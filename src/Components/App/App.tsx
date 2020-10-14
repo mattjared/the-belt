@@ -43,6 +43,9 @@ const getAllGames = async (season: number, page: number = 1): Promise<AllGames |
         const newGames = pageData?.data?.data;
         // @ts-ignore
         gamesList.push(...newGames)
+        if (pageData.data.meta.next_page) {	
+            const nextPageData = await getAllGames(season, pageData.data.meta.next_page)	
+        }
         const sortedGames = gamesList.sort(
             (a, b) =>
               Number(new Date(a.date)) -
@@ -65,13 +68,13 @@ const App = () => {
     const season = 2019;
     const [beltPath, setBeltPath] = useState<Game[]>([]);
     const [champName, setChamp] = useState('')
+    const [viewMode, setViewMode] = useState('all');
 
     useEffect(() => {
         const fetchData = async () => {
             const previousChamp = await getPreviousChamp(season);
             const allGames: AllGames | undefined = await getAllGames(season);
             if (!allGames) {
-                console.log('stop!')
                 return;
             }
             const path = buildBeltPath(previousChamp, allGames.games);
@@ -83,15 +86,33 @@ const App = () => {
 
     return (
         <div className="App">
-            <Header theBelt={champName} />
-            {beltPath.reverse().map((game) => (
-            <div key={`${game.gameIndex}`}>
-                <History
-                gameDate={game.date}
-                game={game}
-                />
+            <Header loading={!beltPath.length} theBelt={champName} />
+            <div className="History-container">
+                {!!beltPath.length && <div className="View-buttons">
+                    <button onClick={() => setViewMode('changes')}>Belt holder changes</button>
+                    <button onClick={() => setViewMode('all')}>All belt holder games</button>
+                </div>}
+                {[...beltPath].reverse().map((game) => {
+                    if (viewMode === 'all') {
+                        return (
+                            <div key={`${game.gameIndex}`}>
+                                <History
+                                gameDate={game.date}
+                                game={game}
+                                />
+                            </div>
+                            )
+                    }
+                    return game.changed ? (
+                        <div key={`${game.gameIndex}`}>
+                            <History
+                            gameDate={game.date}
+                            game={game}
+                            />
+                        </div>
+                        ) : null
+                })}
             </div>
-            ))}
         </div>
     )
 }

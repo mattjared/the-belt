@@ -1,9 +1,13 @@
 export interface Team {
+  abbreviation: string;
+  changed?: boolean;
   full_name: string;
   loser: Team;
 }
 
 export interface Game {
+  abbreviation: string;
+  changed: boolean;
   full_name: string;
   home_team_score: number;
   gameIndex: number;
@@ -90,11 +94,17 @@ export const buildBeltPath = (prevChamp: Team, allGames: Game[]) => {
   // but moving on right now...
   const validWinners = beltWinners.slice(0, invalid - 1);
 
-  // Remove instances where team held onto belt for multiple games
-  const filterOutDupes = validWinners.filter((winner, i) => {
-    return (validWinners[i - 1] || {}).full_name !== winner.full_name
+  // Mark instances where team held onto belt for multiple games
+  const changesMarked = validWinners.map((winner, i) => {
+    if ((validWinners[i - 1] || {}).full_name !== winner.full_name) {
+      return {
+        ...winner,
+        changed: true
+      }
+    }
+    return winner;
   });
-  return filterOutDupes;
+  return changesMarked;
 };
 
 export const moreThanAnHourAgo = (updated: string) => {

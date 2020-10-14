@@ -14,9 +14,28 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
-
 .App-link {
   color: #61dafb;
+}
+.History-container {
+  padding: 0 12px;
+}
+.View-buttons {  
+  margin: 1rem auto;
+  max-width: 500px;
+  text-align: right;
+}
+.View-buttons button {
+  background-color: transparent;
+  border-radius: 4px;
+  line-height: 40px;
+}
+.View-buttons button:first-child {
+  margin-right: 1rem;
+}
+.View-buttons button:hover, .View-buttons button:focus {
+  border: 2px solid #000;
+  cursor: pointer;
 }
 
 @keyframes App-logo-spin {

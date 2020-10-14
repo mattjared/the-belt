@@ -7,9 +7,12 @@
 }
 .Header-preheadline {
   font-size: calc(10px + 1vmin);
-    text-shadow: 1px 1px 1px black;
+  text-shadow: 1px 1px 1px black;
   font-weight: 400;
   margin: 0 0 1rem 0;
+}
+.Header-preheadline.loading {
+  color: #000;
 }
 .Header-headline {
   font-size: calc(10px + 8vmin);
@@ -23,4 +26,23 @@
   /* font-weight: 800; */
   font-style: italic;
   border-radius: .25rem;
+}
+.loading-icon {
+  animation: color-change 3s infinite;
+  height: auto;
+  margin: 0 auto;
+  min-width: 100px;
+  stroke: #17408B;
+  width: 20%;
+}
+@keyframes color-change {
+  0% {
+    stroke: #17408B;
+  }
+  33% {
+    stroke: #fff;
+  }
+  66% {
+    stroke: #C9082A;
+  }
 }
